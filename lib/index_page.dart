@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_share/doc_page.dart';
+import 'package:flutter_share/game_page.dart';
+import 'package:flutter_share/verse_page.dart';
 
 class IndexPage extends StatefulWidget {
   @override
@@ -8,10 +11,10 @@ class IndexPage extends StatefulWidget {
 class _IndexPageState extends State<IndexPage> {
   int _selectedIndex = 0;
   static const TextStyle optionsStyle = TextStyle(fontSize: 30,fontWeight: FontWeight.bold);
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Index0: Home', style: optionsStyle,),
-    Text('Index1: Business', style: optionsStyle,),
-    Text('Index2: School', style: optionsStyle,),
+  static List<Widget> _widgetOptions = <Widget>[
+    VersePage(),
+    GamePage(),
+    DocPage(),
   ];
   void _onItemTaped(int index) {
     setState(() {
@@ -27,19 +30,19 @@ class _IndexPageState extends State<IndexPage> {
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
-              title: Text('Home'),
+              title: Text('诗文'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.business),
-              title: Text('Business'),
+              icon: Icon(Icons.games),
+              title: Text('游戏'),
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.school),
-              title: Text('School'),
+              icon: Icon(Icons.note),
+              title: Text('文档'),
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.blue[800],
+          selectedItemColor: Colors.indigo,
           onTap: _onItemTaped,
         ),
       ),
