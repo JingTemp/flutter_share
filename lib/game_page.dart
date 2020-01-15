@@ -1,230 +1,368 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_share/custom_dialog.dart';
-import 'package:flutter_share/game_button.dart';
+import 'package:flutter_share/logic.dart';
 
-
+final BoxColors = <int, Color>{
+  2: Colors.orange[50],
+  4: Colors.orange[100],
+  8: Colors.orange[200],
+  16: Colors.orange[300],
+  32: Colors.orange[400],
+  64: Colors.orange[500],
+  128: Colors.orange[600],
+  256: Colors.orange[700],
+  512: Colors.orange[800],
+  1024: Colors.orange[900],
+};
 class GamePage extends StatefulWidget {
   @override
   _GamePageState createState() => new _GamePageState();
 }
 
 class _GamePageState extends State<GamePage> {
-  List<GameButton> buttonsList;
-  var player1;
-  var player2;
-  var activePlayer;
+  Game _game;
+  MediaQueryData _queryData;
+  final int row = 4;
+  final int column = 4;
+  final double cellPadding = 5.0;
+  final EdgeInsets _gameMargin = EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 20.0);
+  bool _isDragging = false;
+  bool _isGameOver = false;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    buttonsList = doInit();
+    _game = Game(row, column);
+    newGame();
   }
 
-  List<GameButton> doInit() {
-    player1 = new List();
-    player2 = new List();
-    activePlayer = 1;
-
-    var gameButtons = <GameButton>[
-      new GameButton(id: 1),
-      new GameButton(id: 2),
-      new GameButton(id: 3),
-      new GameButton(id: 4),
-      new GameButton(id: 5),
-      new GameButton(id: 6),
-      new GameButton(id: 7),
-      new GameButton(id: 8),
-      new GameButton(id: 9),
-    ];
-    return gameButtons;
+  void newGame() {
+    _game.init();
+    _isGameOver = false;
+    setState(() {});
   }
 
-  void playGame(GameButton gb) {
+  void moveLeft() {
     setState(() {
-      if (activePlayer == 1) {
-        gb.text = "X";
-        gb.bg = Colors.red;
-        activePlayer = 2;
-        player1.add(gb.id);
-      } else {
-        gb.text = "0";
-        gb.bg = Colors.black;
-        activePlayer = 1;
-        player2.add(gb.id);
-      }
-      gb.enabled = false;
-      int winner = checkWinner();
-      if (winner == -1) {
-        if (buttonsList.every((p) => p.text != "")) {
-          showDialog(
-              context: context,
-              builder: (_) => new CustomDialog("Game Tied",
-                  "Press the reset button to start again.", resetGame));
-        } else {
-          activePlayer == 2 ? autoPlay() : null;
-        }
-      }
+      _game.moveLeft();
+      checkGameOver();
     });
   }
 
-  void autoPlay() {
-    var emptyCells = new List();
-    var list = new List.generate(9, (i) => i + 1);
-    for (var cellID in list) {
-      if (!(player1.contains(cellID) || player2.contains(cellID))) {
-        emptyCells.add(cellID);
-      }
-    }
-
-    var r = new Random();
-    var randIndex = r.nextInt(emptyCells.length-1);
-    var cellID = emptyCells[randIndex];
-    int i = buttonsList.indexWhere((p)=> p.id == cellID);
-    playGame(buttonsList[i]);
-
-  }
-
-  int checkWinner() {
-    var winner = -1;
-    if (player1.contains(1) && player1.contains(2) && player1.contains(3)) {
-      winner = 1;
-    }
-    if (player2.contains(1) && player2.contains(2) && player2.contains(3)) {
-      winner = 2;
-    }
-
-    // row 2
-    if (player1.contains(4) && player1.contains(5) && player1.contains(6)) {
-      winner = 1;
-    }
-    if (player2.contains(4) && player2.contains(5) && player2.contains(6)) {
-      winner = 2;
-    }
-
-    // row 3
-    if (player1.contains(7) && player1.contains(8) && player1.contains(9)) {
-      winner = 1;
-    }
-    if (player2.contains(7) && player2.contains(8) && player2.contains(9)) {
-      winner = 2;
-    }
-
-    // col 1
-    if (player1.contains(1) && player1.contains(4) && player1.contains(7)) {
-      winner = 1;
-    }
-    if (player2.contains(1) && player2.contains(4) && player2.contains(7)) {
-      winner = 2;
-    }
-
-    // col 2
-    if (player1.contains(2) && player1.contains(5) && player1.contains(8)) {
-      winner = 1;
-    }
-    if (player2.contains(2) && player2.contains(5) && player2.contains(8)) {
-      winner = 2;
-    }
-
-    // col 3
-    if (player1.contains(3) && player1.contains(6) && player1.contains(9)) {
-      winner = 1;
-    }
-    if (player2.contains(3) && player2.contains(6) && player2.contains(9)) {
-      winner = 2;
-    }
-
-    //diagonal
-    if (player1.contains(1) && player1.contains(5) && player1.contains(9)) {
-      winner = 1;
-    }
-    if (player2.contains(1) && player2.contains(5) && player2.contains(9)) {
-      winner = 2;
-    }
-
-    if (player1.contains(3) && player1.contains(5) && player1.contains(7)) {
-      winner = 1;
-    }
-    if (player2.contains(3) && player2.contains(5) && player2.contains(7)) {
-      winner = 2;
-    }
-
-    if (winner != -1) {
-      if (winner == 1) {
-        showDialog(
-            context: context,
-            builder: (_) => new CustomDialog("Player 1 Won",
-                "Press the reset button to start again.", resetGame));
-      } else {
-        showDialog(
-            context: context,
-            builder: (_) => new CustomDialog("Player 2 Won",
-                "Press the reset button to start again.", resetGame));
-      }
-    }
-
-    return winner;
-  }
-
-  void resetGame() {
-    if (Navigator.canPop(context)) Navigator.pop(context);
+  void moveRight() {
     setState(() {
-      buttonsList = doInit();
+      _game.moveRight();
+      checkGameOver();
     });
+  }
+
+  void moveUp() {
+    setState(() {
+      _game.moveUp();
+      checkGameOver();
+    });
+  }
+
+  void moveDown() {
+    setState(() {
+      _game.moveDown();
+      checkGameOver();
+    });
+  }
+
+  void checkGameOver() {
+    if (_game.isGameOver()) {
+      _isGameOver = true;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-        appBar: new AppBar(
-          title: new Text("Tic Tac Toe"),
-        ),
-        body: new Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    List<CellWidget> _cellWidgets = List<CellWidget>();
+    for (int r=0;r<row;++r) {
+      for (int c=0;c<column;++c) {
+        _cellWidgets.add(CellWidget(cell: _game.get(r,c), state: this));
+      }
+    }
+    _queryData = MediaQuery.of(context);
+    List<Widget> children = List<Widget>();
+    children.add(BoardGridWidget(this));
+    children.addAll(_cellWidgets);
+    return Column(
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.fromLTRB(0.0, 64.0, 0.0, 0.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            new Expanded(
-              child: new GridView.builder(
-                padding: const EdgeInsets.all(10.0),
-                gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    childAspectRatio: 1.0,
-                    crossAxisSpacing: 9.0,
-                    mainAxisSpacing: 9.0),
-                itemCount: buttonsList.length,
-                itemBuilder: (context, i) => new SizedBox(
-                      width: 100.0,
-                      height: 100.0,
-                      child: new RaisedButton(
-                        padding: const EdgeInsets.all(8.0),
-                        onPressed: buttonsList[i].enabled
-                            ? () => playGame(buttonsList[i])
-                            : null,
-                        child: new Text(
-                          buttonsList[i].text,
-                          style: new TextStyle(
-                              color: Colors.white, fontSize: 20.0),
+            Container(
+              color: Colors.orange[100],
+              child: Container(
+                width: 130.0,
+                height: 60.0,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        "得分",
+                        style: TextStyle(
+                          color: Colors.grey[700],
                         ),
-                        color: buttonsList[i].bg,
-                        disabledColor: buttonsList[i].bg,
                       ),
-                    ),
+                      Text(
+                        _game.score.toString(),
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-            Container(
-              margin: EdgeInsets.all(10.0),
-              child: RaisedButton(
-                child: new Text(
-                  "Reset",
-                  style: new TextStyle(color: Colors.white, fontSize: 20.0),
-                ),
-                color: Colors.red,
-                padding: const EdgeInsets.all(5.0),
-                onPressed: resetGame,
-              ),
+            FlatButton(
+              padding: EdgeInsets.all(0.0),
+              child: Container(
+                  width: 130.0,
+                  height: 60.0,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey[400],
+                    ),
+                  ),
+                  child: Center(
+                    child: Text("新游戏"),
+                  )),
+              onPressed: () {
+                newGame();
+              },
             ),
           ],
+        )
+        ),
+        Container(
+          height: 50.0,
+          child: Opacity(
+            opacity: _isGameOver ? 1.0 : 0.0,
+            child: Center(
+              child: Text("Game Over!",
+                  style: TextStyle(
+                    fontSize: 24.0,
+                  )),
+            ),
+          ),
+        ),
+        Container(
+            margin: _gameMargin,
+            width: _queryData.size.width,
+            height: _queryData.size.width,
+            child: GestureDetector(
+              onVerticalDragUpdate: (detail) {
+                if (detail.delta.distance == 0 || _isDragging) {
+                  return;
+                }
+                _isDragging = true;
+                if (detail.delta.direction > 0) {
+                  moveDown();
+                } else {
+                  moveUp();
+                }
+              },
+              onVerticalDragEnd: (detail) {
+                _isDragging = false;
+              },
+              onVerticalDragCancel: () {
+                _isDragging = false;
+              },
+              onHorizontalDragUpdate: (detail) {
+                if (detail.delta.distance == 0 || _isDragging) {
+                  return;
+                }
+                _isDragging = true;
+                if (detail.delta.direction > 0) {
+                  moveLeft();
+                } else {
+                  moveRight();
+                }
+              },
+              onHorizontalDragDown: (detail) {
+                _isDragging = false;
+              },
+              onHorizontalDragCancel: () {
+                _isDragging = false;
+              },
+              child: Stack(
+                children: children,
+              ),
+            )),
+      ],
+    );
+  }
+
+  Size boardSize() {
+    assert(_queryData != null);
+    Size size = _queryData.size;
+    num width = size.width - _gameMargin.left - _gameMargin.right;
+    return Size(width, width);
+  }
+}
+
+class AnimatedCellWidget extends AnimatedWidget {
+  final BoardCell cell;
+  final _GamePageState state;
+  AnimatedCellWidget(
+      {Key key, this.cell, this.state, Animation<double> animation})
+      : super(key: key, listenable: animation);
+
+  @override
+  Widget build(BuildContext context) {
+    final Animation<double> animation = listenable;
+    double animationValue = animation.value;
+    Size boardSize = state.boardSize();
+    double width = (boardSize.width - (state.column + 1) * state.cellPadding) /
+        state.column;
+    if (cell.number == 0) {
+      return Container();
+    } else {
+      return CellBox(
+        left: (cell.column * width + state.cellPadding * (cell.column + 1)) +
+            width / 2 * (1 - animationValue),
+        top: cell.row * width +
+            state.cellPadding * (cell.row + 1) +
+            width / 2 * (1 - animationValue),
+        size: width * animationValue,
+        color: BoxColors.containsKey(cell.number)
+            ? BoxColors[cell.number]
+            : BoxColors[BoxColors.keys.last],
+        text: Text(
+          cell.number.toString(),
+          maxLines: 1,
+          style: TextStyle(
+            fontSize: 30.0 * animationValue,
+            fontWeight: FontWeight.bold,
+            color: cell.number < 32 ? Colors.grey[600] : Colors.grey[50],
+          ),
+        ),
+      );
+    }
+  }
+}
+
+class CellWidget extends StatefulWidget {
+  final BoardCell cell;
+  final _GamePageState state;
+  CellWidget({this.cell, this.state});
+  _CellWidgetState createState() => _CellWidgetState();
+}
+
+class _CellWidgetState extends State<CellWidget>
+    with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  Animation<double> animation;
+
+  @override
+  initState() {
+    super.initState();
+    controller = AnimationController(
+      duration: Duration(
+        milliseconds: 200,
+      ),
+      vsync: this,
+    );
+    animation = new Tween(begin: 0.0, end: 1.0).animate(controller);
+  }
+
+  dispose() {
+    controller.dispose();
+    super.dispose();
+    widget.cell.isNew = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.cell.isNew && !widget.cell.isEmpty()) {
+      controller.reset();
+      controller.forward();
+      widget.cell.isNew = false;
+    } else {
+      controller.animateTo(1.0);
+    }
+    return AnimatedCellWidget(
+      cell: widget.cell,
+      state: widget.state,
+      animation: animation,
+    );
+  }
+}
+
+class CellBox extends StatelessWidget {
+  final double left;
+  final double top;
+  final double size;
+  final Color color;
+  final Text text;
+  CellBox({this.left, this.top, this.size, this.color, this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: left,
+      top: top,
+      child: Container(
+          width: size,
+          height: size,
+          padding:  EdgeInsets.symmetric(horizontal: 5 ),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: Center(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child:text
+            )
+          )),
+    );
+  }
+}
+
+class BoardGridWidget extends StatelessWidget {
+  final _GamePageState _state;
+  BoardGridWidget(this._state);
+  @override
+  Widget build(BuildContext context) {
+    final boardSize = _state.boardSize();
+    double width =
+        (boardSize.width - (_state.column + 1) * _state.cellPadding) /
+            _state.column;
+    List<CellBox> _backgroundBox = List<CellBox>();
+    for (int r = 0; r < _state.row; ++r) {
+      for (int c = 0; c < _state.column; ++c) {
+        CellBox box = CellBox(
+          left: c * width + _state.cellPadding * (c + 1),
+          top: r * width + _state.cellPadding * (r + 1),
+          size: width,
+          color: Colors.grey[300],
+        );
+        _backgroundBox.add(box);
+      }
+    }
+    return Positioned(
+        left: 0.0,
+        top: 0.0,
+        child: Container(
+          width: _state.boardSize().width,
+          height: _state.boardSize().height,
+          decoration: BoxDecoration(
+            color: Colors.grey,
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: Stack(
+            children: _backgroundBox,
+          ),
         ));
   }
 }
