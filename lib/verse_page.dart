@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_share/services/net_utils.dart';
 class VersePage extends StatefulWidget {
   @override
@@ -6,6 +7,21 @@ class VersePage extends StatefulWidget {
 }
 
 class _VersePageState extends State<VersePage> {
+  static const platform = const MethodChannel('samples.flutter.dev/battery');
+  String _batteryLevel = 'Unknown battery level.';
+  Future<void> _getBatteryLevel() async {
+    String batteryLevel;
+    try {
+      final int result = await platform.invokeMethod('getBatteryLevel');
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = 'Failed to get battery level: ${e.message} .';
+    }
+
+    setState(() {
+      _batteryLevel = batteryLevel;
+    });
+  }
   var _verse;
   @override
   void initState() {
@@ -37,6 +53,19 @@ class _VersePageState extends State<VersePage> {
                       "${data['origin']} —— ${data['author']}", 
                       style: TextStyle(color: Colors.white, fontSize: 14),
                       textAlign: TextAlign.right,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 250),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          RaisedButton(
+                            child: Text('Get Battery Level'),
+                            onPressed: _getBatteryLevel,
+                          ),
+                          Text(_batteryLevel, style: TextStyle(color: Colors.white),),
+                        ],
+                      ),
                     ),
                   ],
                 );
