@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter 分享',
       theme: ThemeData(
-        primarySwatch: Colors.indigo,
+        primaryColor: Colors.indigo,
       ),
       debugShowCheckedModeBanner: false,
       home: SplashPage(),

@@ -2,20 +2,26 @@ PODS:
   - Flutter (1.0.0)
   - flutter_webview_plugin (0.0.1):
     - Flutter
+  - xfvoice (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_webview_plugin (from `.symlinks/plugins/flutter_webview_plugin/ios`)
+  - xfvoice (from `.symlinks/plugins/xfvoice/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   flutter_webview_plugin:
     :path: ".symlinks/plugins/flutter_webview_plugin/ios"
+  xfvoice:
+    :path: ".symlinks/plugins/xfvoice/ios"
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_webview_plugin: ed9e8a6a96baf0c867e90e1bce2673913eeac694
+  xfvoice: 8180e37d9bda8d2282a73643dd59a941a99ab7f8
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 

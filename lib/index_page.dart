@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_share/doc_page.dart';
 import 'package:flutter_share/game_page.dart';
 import 'package:flutter_share/verse_page.dart';
+import 'package:flutter_share/voice_page.dart';
 
 class IndexPage extends StatefulWidget {
   @override
@@ -10,10 +11,11 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   int _selectedIndex = 0;
-  static const TextStyle optionsStyle = TextStyle(fontSize: 30,fontWeight: FontWeight.bold);
+  static const TextStyle optionsStyle = TextStyle(fontSize: 30,fontWeight: FontWeight.bold, color: Colors.grey);
   static List<Widget> _widgetOptions = <Widget>[
     VersePage(),
     GamePage(),
+    VoicePage(),
     DocPage(),
   ];
   void _onItemTaped(int index) {
@@ -35,6 +37,10 @@ class _IndexPageState extends State<IndexPage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.games),
               title: Text('游戏'),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.voice_chat),
+              title: Text('语音'),
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.note),
